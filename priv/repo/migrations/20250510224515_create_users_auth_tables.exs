@@ -7,7 +7,7 @@ defmodule Baseapp.Repo.Migrations.CreateUsersAuthTables do
     create table(:users) do
       add :email, :citext, null: false
       add :role, :string, default: "user", null: false
-      add :profilepicture, :string, 
+      add :profilepicture, :string 
       add :hashed_password, :string, null: false
       add :confirmed_at, :utc_datetime
 
