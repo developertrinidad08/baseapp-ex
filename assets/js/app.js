@@ -296,7 +296,12 @@ Hooks.TablaDinamica = {
 
   // Si la data está vacía, no hacemos nada (evitamos que Tabulator se rompa)
   if (Array.isArray(newData) && newData.length === 0) {
-    console.log("Datos vacíos recibidos, no se actualiza Tabulator para evitar romper el filtro");
+    this.table.alert("No se encontraron resultados...");
+    setTimeout(() => {
+  this.table.clearAlert();
+}, 2000)
+    console.warn("alerta")
+
     return; // Salimos sin cambiar nada
   }
 
