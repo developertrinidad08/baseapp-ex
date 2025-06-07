@@ -17,6 +17,10 @@ defmodule BaseappWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :require_admin_user do
+  plug BaseappWeb.Plugs.RequireAdminUser
+  end
+
   scope "/", BaseappWeb do
     pipe_through :browser
 
@@ -61,13 +65,32 @@ defmodule BaseappWeb.Router do
     post "/users/log_in", UserSessionController, :create
   end
 
-  scope "/", BaseappWeb do
-    pipe_through [:browser, :require_authenticated_user]
+  #scope "/", BaseappWeb do
+    #pipe_through [:browser, :require_authenticated_user]
+
+    #live_session :require_authenticated_user,
+      #on_mount: [{BaseappWeb.UserAuth, :ensure_authenticated}] do
+      #live "/users/settings", UserSettingsLive, :edit
+      #live "/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email
+    #end
+  #end
+
+    scope "/", BaseappWeb do
+    pipe_through [:browser, :require_authenticated_user, :require_admin_user]
+
 
     live_session :require_authenticated_user,
       on_mount: [{BaseappWeb.UserAuth, :ensure_authenticated}] do
       live "/users/settings", UserSettingsLive, :edit
       live "/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email
+    end
+
+    live_session :require_admin_user,
+      on_mount: [{BaseappWeb.UserAuth, :ensure_authenticated}] do
+      live "/users/settings", UserSettingsLive, :edit
+      live "/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email
+
+      live "/admin", AdminLive.Index, :index
 
       live "/posts", PostLive.Index, :index
       live "/posts/new", PostLive.Index, :new
@@ -77,6 +100,7 @@ defmodule BaseappWeb.Router do
       live "/posts/:id/show/edit", PostLive.Show, :edit
     end
   end
+
 
   scope "/", BaseappWeb do
     pipe_through [:browser]

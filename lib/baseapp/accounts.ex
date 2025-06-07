@@ -59,6 +59,15 @@ defmodule Baseapp.Accounts do
 
   """
   def get_user!(id), do: Repo.get!(User, id)
+  
+  def get_all_users do
+  
+  Repo.all(User)
+
+  end
+
+  def apply_filter_users() do
+  end
 
   ## User registration
 
@@ -214,6 +223,22 @@ defmodule Baseapp.Accounts do
       {:error, :user, changeset, _} -> {:error, changeset}
     end
   end
+
+    def update_admin_password(user, attrs) do
+    changeset =
+      user
+      |> User.password_changeset(attrs)
+
+    Ecto.Multi.new()
+    |> Ecto.Multi.update(:user, changeset)
+    |> Ecto.Multi.delete_all(:tokens, UserToken.by_user_and_contexts_query(user, :all))
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{user: user}} -> {:ok, user}
+      {:error, :user, changeset, _} -> {:error, changeset}
+    end
+  end
+
 
   ## Session
 

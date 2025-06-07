@@ -7,9 +7,17 @@
     <.live_title suffix=" · Phoenix Framework">
       <%= assigns[:page_title] || "Baseapp" %>
     </.live_title>
+    <!-- Links -->
     <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
+    <link href="https://unpkg.com/tabulator-tables@6.3.1/dist/css/tabulator.min.css" rel="stylesheet" >
+
+    <!-- Scripts -->
     <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
     </script>
+    <script type="text/javascript" src="https://unpkg.com/tabulator-tables@6.3.1/dist/js/tabulator.min.js"></script>
+
+
+
   </head>
   <body class="bg-white">
     <ul class="relative z-10 flex items-center gap-4 px-4 sm:px-6 lg:px-8 justify-end">
@@ -17,6 +25,11 @@
         <li class="text-[0.8125rem] leading-6 text-zinc-900">
           {@current_user.email}
         </li>
+
+        <li class="text-[0.8125rem] leading-6 text-zinc-900">
+          {@current_user.role}
+        </li>
+
         <li>
           <.link
             href={~p"/users/settings"}

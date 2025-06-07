@@ -1,0 +1,36 @@
+
+
+<div>
+  <div
+    id="tabla"
+    phx-hook="TablaDinamica"
+    data-rows={Jason.encode!(@rows)}
+    data-columns={Jason.encode!(@columns)}
+  phx-update="ignore"
+
+  class="h-64 w-full border"
+  ></div>
+
+  <div class="mt-2 flex items-center space-x-2">
+    <button
+      phx-click="pagina"
+      phx-value-num={@pagina - 1}
+      class="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+      disabled={@pagina <= 1}
+    >
+      Anterior
+    </button>
+
+    <span>Página <%= @pagina %> de <%= div(@total + @page_size - 1, @page_size) %></span>
+
+    <button
+      phx-click="pagina"
+      phx-value-num={@pagina + 1}
+      class="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+      disabled={@pagina >= div(@total + @page_size - 1, @page_size)}
+    >
+      Siguiente
+    </button>
+  </div>
+</div>
+
