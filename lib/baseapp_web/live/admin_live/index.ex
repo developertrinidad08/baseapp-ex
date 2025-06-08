@@ -7,7 +7,7 @@ defmodule BaseappWeb.AdminLive.Index do
 
   alias Baseapp.Accounts.User
   
-  @page_size 2
+  @page_size 20 
 
   def mount(_params, _session, socket) do
     columnas = [
@@ -46,6 +46,8 @@ defmodule BaseappWeb.AdminLive.Index do
         _ -> nil
       end
 
+    orden = %{"campo" => "id", "direccion" => "desc"}
+
     pagina = 1
 
     {rows, total} = fetch_data(filtros, orden, pagina)
@@ -78,6 +80,11 @@ defmodule BaseappWeb.AdminLive.Index do
   defp fetch_data(filtros, orden, pagina) do
     query = from u in User
 
+
+    IO.inspect(orden, label: "----> orden en fetch")
+
+    orden = %{"campo" => "id", "direccion" => "desc"}
+
     filtros_limpios = filtros |> Enum.filter(fn {_k, v} -> v not in [nil, ""] end)
 
     query =
@@ -89,13 +96,21 @@ defmodule BaseappWeb.AdminLive.Index do
           from u in query, where: ilike(u.role, ^"%#{val}%")
       
         {:id, val}, query when val != "" ->
-          from u in query, where: u.id == ^val
+          case Integer.parse(val) do
+            {int_val, ""} ->
+                from u in query,
+    where: ilike(fragment("CAST(? AS TEXT)", u.id), ^"%#{val}%")
+            _ ->
+              query # si no es un número válido, no aplicamos el filtro
+          end
+          
 
         _, query ->
           query
       end)
 
     query = maybe_order(query, orden)
+    IO.inspect(query, label: "-----> que tenemos aca ")
 
     total = Repo.aggregate(query, :count, :id)
 
