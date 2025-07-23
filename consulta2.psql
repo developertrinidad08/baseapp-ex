@@ -1,0 +1,45 @@
+SELECT json_agg(ordenes) AS json
+FROM (
+  SELECT 
+    123 as idsite,
+      op.nombrepaciente as patientname,
+      op.id as idestudio,
+      op.idorden,
+      op.descmetodocomplementario as proceduredescription,
+      to_char(op.fechaestudio, 'DD/MM/YYYY') as studydate,
+      to_char(op.horaestudio, 'HH24:MI:SS') as studytime,
+      trim(op.accessionnumber) as accessionnumber,
+      op.idpaciente,
+      op.nrodocumento, op.empresa, op.institucion_recibe_informe,
+                        count(oa.idordenes_progal) as cant_archivos,
+                        (
+                        select
+                                   substring(encrypt(idordenarchivo::text::bytea, 'grupogamma', 'aes')::text from 3) as idordenarchivo
+                                        from ordenes_archivos
+                                        where idordenes_progal = op.id
+                                        order by idordenarchivo
+                                        limit 1
+                        ) as idprimerarchivo,
+                        op.imagenes,
+                        e.zfpurl,
+                        e.token as zfptoken,
+                        d.url,
+                        d.status as downloadstatus,
+                       op.estudios::jsonb as estudios,
+                        d.statusdescription
+
+   
+      from entornos e, ordenes_progal op
+      left join ordenes_archivos oa on oa.idordenes_progal = op.id
+                        left join downloads d on d.accession = op.accessionnumber
+      where
+                        op.accessionnumber <> '''' and  
+                        op.accessionnumber is not null and
+                        op.publicado=true and
+                        e.activo=true and
+                        op.institucion_recibe_informe IS NULL and
+      op.idpaciente = 582334    
+                        group by op.id, e.identorno, d.url, d.status, d.statusdescription
+                        order by op.fechaestudio desc nulls last, op.horaestudio desc nulls last
+) AS ordenes;
+
